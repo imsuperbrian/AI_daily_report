@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+
+build/
+dist/
+
+*.db
+
+daily_report.md
+
+.DS_Store
