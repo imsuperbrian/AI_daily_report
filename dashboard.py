@@ -41,6 +41,7 @@ if page == "Keywords":
         if new_keyword.strip():
             add_keyword(new_keyword.strip().lower())
             st.success(f"Added keyword: {new_keyword}")
+            st.rerun()
 
     st.subheader("Current Keywords")
 
