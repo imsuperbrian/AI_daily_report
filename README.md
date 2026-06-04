@@ -93,11 +93,3 @@ docker run -it \
 -e OPENAI_API_KEY=$OPENAI_API_KEY \
 ai-daily-report
 ```
-
-## Future Development
-
-* Streamlit Dashboard
-* Trend Visualization
-* Automated Scheduling
-* Web Deployment
-* Stock Market Analysis Extension
