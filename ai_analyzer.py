@@ -4,6 +4,11 @@ client = OpenAI()
 
 def analyze_market_sentiment(filtered_articles):
 
+    if not filtered_articles:
+        return """Sentiment: Neutral
+Summary: 今天沒有符合條件的新聞。
+        """
+
     headlines = []
 
     for article in filtered_articles[:10]:
@@ -12,7 +17,7 @@ def analyze_market_sentiment(filtered_articles):
     headlines_text = "\n".join(headlines)
 
     prompt = f"""
-    Analyze the market sentiment based on these headlines and return the traditional mandarin summary.
+    Analyze the market sentiment based on these headlines.
 
     Use Traditional Chinese.
 

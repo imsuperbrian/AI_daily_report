@@ -1,11 +1,19 @@
+import os
 import sqlite3
 from datetime import datetime
 
 
+DB_PATH = "data/ai_daily_report.db"
+
+
+def get_connection():
+    os.makedirs("data", exist_ok=True)
+    return sqlite3.connect(DB_PATH)
+
+
 def create_tables():
 
-    conn = sqlite3.connect("ai_daily_report.db")
-
+    conn = get_connection()
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -30,10 +38,10 @@ def create_tables():
     conn.commit()
     conn.close()
 
+
 def add_keyword(keyword):
 
-    conn = sqlite3.connect("ai_daily_report.db")
-
+    conn = get_connection()
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -47,8 +55,7 @@ def add_keyword(keyword):
 
 def get_keywords():
 
-    conn = sqlite3.connect("ai_daily_report.db")
-
+    conn = get_connection()
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -68,10 +75,10 @@ def get_keywords():
 
     return keywords
 
+
 def delete_keyword(keyword):
 
-    conn = sqlite3.connect("ai_daily_report.db")
-
+    conn = get_connection()
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -82,10 +89,10 @@ def delete_keyword(keyword):
     conn.commit()
     conn.close()
 
+
 def deactivate_keyword(keyword):
 
-    conn = sqlite3.connect("ai_daily_report.db")
-
+    conn = get_connection()
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -97,9 +104,10 @@ def deactivate_keyword(keyword):
     conn.commit()
     conn.close()
 
+
 def save_search_run(keyword, article_count, sentiment, summary):
 
-    conn = sqlite3.connect("ai_daily_report.db")
+    conn = get_connection()
     cursor = conn.cursor()
 
     run_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -112,17 +120,18 @@ def save_search_run(keyword, article_count, sentiment, summary):
     conn.commit()
     conn.close()
 
+
 def get_search_history(keyword):
 
-    conn = sqlite3.connect("ai_daily_report.db")
-
+    conn = get_connection()
     cursor = conn.cursor()
 
     cursor.execute("""
     SELECT
         run_time,
         article_count,
-        sentiment
+        sentiment,
+        summary
     FROM search_runs
     WHERE keyword = ?
     ORDER BY run_time

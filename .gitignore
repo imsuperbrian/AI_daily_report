@@ -9,3 +9,5 @@ dist/
 daily_report.md
 
 .DS_Store
+
+data/

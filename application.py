@@ -22,7 +22,6 @@ def main():
         choice = input("\nChoose an option: ")
 
 
-
         if choice == "1":
             while True:
 
