@@ -35,6 +35,20 @@ def create_tables():
     )
     """)
 
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS articles(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        keyword TEXT,
+        title TEXT,
+        source TEXT,
+        source_type TEXT,
+        published TEXT,
+        link TEXT,
+        run_time TEXT,
+        UNIQUE(keyword, link)
+    )
+    """)
+
     conn.commit()
     conn.close()
 
@@ -82,7 +96,8 @@ def delete_keyword(keyword):
     cursor = conn.cursor()
 
     cursor.execute("""
-    DELETE FROM keywords
+    UPDATE keywords
+    SET active = 0
     WHERE keyword = ?
     """, (keyword,))
 
@@ -98,6 +113,20 @@ def deactivate_keyword(keyword):
     cursor.execute("""
     UPDATE keywords
     SET active = 0
+    WHERE keyword = ?
+    """, (keyword,))
+
+    conn.commit()
+    conn.close()
+
+def reactivate_keyword(keyword):
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    UPDATE keywords
+    SET active = 1
     WHERE keyword = ?
     """, (keyword,))
 
@@ -142,3 +171,100 @@ def get_search_history(keyword):
     conn.close()
 
     return history
+
+
+def save_articles(keyword, articles):
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    run_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    for article in articles:
+        cursor.execute("""
+        INSERT OR IGNORE INTO articles(
+            keyword,
+            title,
+            source,
+            source_type,
+            published,
+            link,
+            run_time
+        )
+        VALUES(?, ?, ?, ?, ?, ?, ?)
+        """, (
+            keyword,
+            article["title"],
+            article["source"],
+            article["source_type"],
+            article["published"],
+            article["link"],
+            run_time
+        ))
+
+    conn.commit()
+    conn.close()
+
+
+def get_articles(keyword):
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    SELECT
+        title,
+        source,
+        published,
+        link
+    FROM articles
+    WHERE keyword = ?
+    ORDER BY published DESC
+    """, (keyword,))
+
+    articles = cursor.fetchall()
+
+    conn.close()
+
+    return articles
+
+
+def get_article_keywords():
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    SELECT DISTINCT keyword
+    FROM articles
+    ORDER BY keyword
+    """)
+
+    rows = cursor.fetchall()
+
+    conn.close()
+
+    keywords = []
+
+    for row in rows:
+        keywords.append(row[0])
+
+    return keywords
+
+
+def get_all_keywords():
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    SELECT keyword, active
+    FROM keywords
+    ORDER BY keyword
+    """)
+
+    rows = cursor.fetchall()
+
+    conn.close()
+
+    return rows

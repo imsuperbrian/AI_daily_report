@@ -1,4 +1,6 @@
 import streamlit as st
+from database import get_article_keywords, reactivate_keyword, get_all_keywords, get_articles
+
 
 from database import (
     create_tables,
@@ -27,7 +29,8 @@ page = st.sidebar.radio(
     [
         "Keywords",
         "Run Analysis",
-        "History"
+        "History",
+        "Articles"
     ]
 )
 
@@ -45,19 +48,28 @@ if page == "Keywords":
 
     st.subheader("Current Keywords")
 
-    keywords = get_keywords()
+    keywords = get_all_keywords()
 
-    for keyword in keywords:
+    for keyword, active in keywords:
         col1, col2 = st.columns([4, 1])
 
         with col1:
-            st.write(keyword)
+            if active == 1:
+                st.write(f"🟢 {keyword}")
+            else:
+                st.write(f"🔴 {keyword}")
 
         with col2:
-            if st.button("Delete", key=keyword):
-                delete_keyword(keyword)
-                st.success(f"Deleted: {keyword}")
-                st.rerun()
+            if active == 1:
+                if st.button("Deactivate", key=f"deactivate_{keyword}"):
+                    delete_keyword(keyword)
+                    st.success(f"Deactivated: {keyword}")
+                    st.rerun()
+            else:
+                if st.button("Reactivate", key=f"reactivate_{keyword}"):
+                    reactivate_keyword(keyword)
+                    st.success(f"Reactivated: {keyword}")
+                    st.rerun()
 
 
 elif page == "Run Analysis":
@@ -110,3 +122,33 @@ elif page == "History":
 
         else:
             st.info("No history found for this keyword.")
+
+elif page == "Articles":
+
+    st.header("Articles")
+
+    keywords = get_article_keywords()
+
+    selected_keyword = st.selectbox(
+        "Choose keyword",
+        keywords
+    )
+
+    articles = get_articles(selected_keyword)
+
+    st.write("Articles Found:", len(articles))
+
+    if articles:
+        for article in articles:
+            title = article[0]
+            source = article[1]
+            published = article[2]
+            link = article[3]
+
+            st.subheader(title)
+            st.write(f"{source} | {published}")
+            st.link_button("Open Article", link)
+            st.divider()
+
+    else:
+        st.info("No articles found.")

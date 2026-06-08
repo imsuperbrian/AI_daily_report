@@ -1,8 +1,8 @@
 from openai import OpenAI
 
-client = OpenAI()
 
 def analyze_market_sentiment(filtered_articles):
+    client = OpenAI()
 
     if not filtered_articles:
         return """Sentiment: Neutral
