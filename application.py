@@ -1,18 +1,35 @@
-from database import create_tables, add_keyword, get_keywords, delete_keyword, get_search_history
+from database import (create_tables, add_keyword, get_keywords, delete_keyword, get_search_history)
+
 from main import main as run_analysis
 
+
 def show_menu():
+    """
+    Display the command-line menu for the AI Daily Report application.
+    """
 
     print("\n===== AI Daily Report =====")
     print("1. Add Keyword")
     print("2. View Keywords")
-    print("3. Delete Keyword")
+    print("3. Deactivate Keyword")
     print("4. Run Analysis")
     print("5. View History")
     print("6. Exit")
 
-def main():
 
+def main():
+    """
+    Run the command-line application.
+
+    This menu allows users to:
+    - Add keywords
+    - View active keywords
+    - Deactivate keywords
+    - Run AI news analysis
+    - View keyword search history
+    """
+
+    # Make sure database tables exist before using the app.
     create_tables()
 
     while True:
@@ -21,18 +38,21 @@ def main():
 
         choice = input("\nChoose an option: ")
 
-
         if choice == "1":
+
+            # Allow users to add multiple keywords in one session.
             while True:
 
-                keyword = input("Enter keyword (press q to quit): ").strip().lower()
+                keyword = input(
+                    "Enter keyword (press q to quit): "
+                ).strip().lower()
+
                 if keyword == "q":
                     break
 
                 add_keyword(keyword)
+
                 print("Added: " + keyword)
-
-
 
         elif choice == "2":
 
@@ -43,19 +63,15 @@ def main():
             for keyword in keywords:
                 print("-", keyword)
 
-
-
         elif choice == "3":
 
             keyword = input(
-                "Keyword to delete: "
+                "Keyword to deactivate: "
             ).strip().lower()
 
             delete_keyword(keyword)
 
-            print("Deleted: " + keyword)
-
-
+            print("Deactivated: " + keyword)
 
         elif choice == "4":
 
@@ -64,11 +80,11 @@ def main():
 
             run_analysis()
 
-
-
         elif choice == "5":
 
-            keyword = input("Enter keyword to view history: ").strip().lower()
+            keyword = input(
+                "Enter keyword to view history: "
+            ).strip().lower()
 
             history = get_search_history(keyword)
 
@@ -79,10 +95,13 @@ def main():
                 article_count = row[1]
                 sentiment = row[2]
 
-                first_line = sentiment.split("\n")[0]
-                print(run_time + " | " + "we found: " + str(article_count) + " article(s) | " + first_line)
-
-
+                print(
+                    run_time
+                    + " | found: "
+                    + str(article_count)
+                    + " article(s) | "
+                    + sentiment
+                )
 
         elif choice == "6":
 
