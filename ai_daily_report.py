@@ -212,10 +212,14 @@ def get_sources():
             "type": "community"
         },
 
-        # Taiwan and Chinese-language sources
         {
             "name": "Google News Taiwan",
             "url": "https://news.google.com/rss?hl=zh-TW&gl=TW&ceid=TW:zh-Hant",
+            "type": "news"
+        },
+        {
+            "name": "Google News Tech TW",
+            "url": "https://news.google.com/rss/search?q=科技&hl=zh-TW&gl=TW&ceid=TW:zh-Hant",
             "type": "news"
         },
         {
@@ -224,21 +228,47 @@ def get_sources():
             "type": "finance"
         },
         {
-            "name": "Google News Tech TW",
-            "url": "https://news.google.com/rss/search?q=科技&hl=zh-TW&gl=TW&ceid=TW:zh-Hant",
-            "type": "news"
+            "name": "Google News ESL",
+            "url": "https://news.google.com/rss/search?q=electronic%20shelf%20label&hl=en-US&gl=US&ceid=US:en",
+            "type": "industry"
         },
         {
-            "name": "Google News Stock TW",
-            "url": "https://news.google.com/rss/search?q=股市&hl=zh-TW&gl=TW&ceid=TW:zh-Hant",
-            "type": "finance"
+            "name": "Google News Smart Retail",
+            "url": "https://news.google.com/rss/search?q=smart%20retail%20OR%20retail%20automation&hl=en-US&gl=US&ceid=US:en",
+            "type": "industry"
         },
         {
-            "name": "Google News US Stocks TW",
-            "url": "https://news.google.com/rss/search?q=美股&hl=zh-TW&gl=TW&ceid=TW:zh-Hant",
-            "type": "finance"
+            "name": "Google News M2COMM Competitors",
+            "url": "https://news.google.com/rss/search?q=Hanshow%20OR%20VusionGroup%20OR%20Pricer%20OR%20SOLUM%20OR%20Zkong&hl=en-US&gl=US&ceid=US:en",
+            "type": "competitor"
+        },
+        {
+            "name": "Retail Dive",
+            "url": "https://www.retaildive.com/feeds/news/",
+            "type": "industry"
+        },
+        {
+            "name": "Retail Technology Innovation Hub",
+            "url": "https://retailtechinnovationhub.com/home?format=rss",
+            "type": "industry"
+        },
+        {
+            "name": "IoT Business News",
+            "url": "https://iotbusinessnews.com/feed/",
+            "type": "iot"
+        },
+        {
+            "name": "IoT World Today",
+            "url": "https://www.iotworldtoday.com/rss.xml",
+            "type": "iot"
+        },
+        {
+            "name": "E Ink News",
+            "url": "https://www.eink.com/news.xml",
+            "type": "supplier"
         }
-    ]
+        ]
+
 
 
 def collect_all_articles(sources):

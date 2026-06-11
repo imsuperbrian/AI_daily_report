@@ -1,8 +1,8 @@
 from ai_daily_report import collect_articles
 from article_processor import remove_duplicates, display_words_count
 from ai_summary import summarize_articles
-from ai_analyzer import analyze_market_sentiment, parse_ai_analysis, generate_keyword_insight
-from database import create_tables, save_search_run, get_search_history, save_articles, save_ai_insight, get_trending_keywords
+from ai_analyzer import analyze_market_sentiment, parse_ai_analysis, generate_keyword_insight, generate_executive_briefing
+from database import create_tables, save_search_run, get_search_history, save_articles, save_ai_insight, get_trending_keywords, save_executive_briefing
 
 
 def main(api_key = None):
@@ -90,6 +90,17 @@ def main(api_key = None):
 
         report += f"\n\n## AI Insight for {keyword}\n"
         report += insight
+
+
+    briefing = generate_executive_briefing(
+        cleaned_articles,
+        api_key
+    )
+
+    save_executive_briefing(briefing)
+
+    report += "\n\n## Executive Briefing\n"
+    report += briefing
 
     print(get_search_history("nvidia"))
 

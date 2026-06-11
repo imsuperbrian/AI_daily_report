@@ -108,6 +108,8 @@ def parse_ai_analysis(ai_text):
     return sentiment, summary
 
 
+
+
 def generate_keyword_insight(keyword, articles, api_key = None):
 
     if not articles:
@@ -150,6 +152,93 @@ Format:
 
 Keep it concise but useful for decision making.
 """
+
+    response = client.responses.create(model="gpt-4.1-mini", input=prompt)
+
+    return response.output_text
+
+
+
+def generate_executive_briefing(articles, api_key=None):
+
+    if not articles:
+        return "No articles available for executive briefing."
+
+    client = OpenAI(api_key=api_key)
+
+    headlines = []
+
+    for article in articles[:30]:
+        title = article["title"]
+        source = article["source"]
+        keywords = article["keywords"]
+
+        headlines.append(
+            f"- {title} ({source}) | Keywords: {keywords}"
+        )
+
+    headlines_text = "\n".join(headlines)
+
+    prompt = f"""
+    You are a senior Competitive Intelligence Analyst for M2COMM.
+
+    M2COMM focuses on:
+    - Electronic Shelf Labels (ESL)
+    - Smart Retail
+    - Retail Automation
+    - IoT
+    - Wireless Communication
+    - Healthcare and Logistics Solutions
+
+    Key Competitors:
+    - Hanshow
+    - VusionGroup
+    - Pricer
+    - SOLUM
+    - Zkong
+
+    Analyze today's news headlines and generate an executive briefing for M2COMM management.
+
+    Headlines:
+    {headlines_text}
+
+    Return in Traditional Chinese.
+
+    IMPORTANT:
+    You MUST use EXACTLY the following section titles and field labels.
+
+    Required Output Format:
+
+    Top Opportunity
+    Reason:
+    Impact:
+
+    Top Threat
+    Reason:
+    Impact:
+
+    Fastest Growing Topic
+    Reason:
+    Impact:
+
+    Regional Trend
+    Reason:
+    Impact:
+
+    Recommended Actions
+    - 
+    - 
+    - 
+
+    Rules:
+    - Do not use any other section titles.
+    - Do not write an executive summary.
+    - Do not use numbered sections.
+    - Keep each Reason and Impact concise.
+    - Focus on business value for M2COMM.
+    - Focus on competitors, customer demand, markets, regions, and product opportunities.
+    """
+
 
     response = client.responses.create(
         model="gpt-4.1-mini",

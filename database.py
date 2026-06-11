@@ -73,24 +73,47 @@ def create_tables():
     )
     """)
 
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS executive_briefings(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        run_time TEXT,
+        briefing TEXT
+    )
+    """)
+
     conn.commit()
     conn.close()
 
 
 def add_keyword(keyword):
-    """
-    Add a keyword to the database.
 
-    If the keyword already exists, it will be ignored.
-    """
+    keyword = keyword.strip().lower()
+
+    if not keyword:
+        return
 
     conn = get_connection()
     cursor = conn.cursor()
 
     cursor.execute("""
-    INSERT OR IGNORE INTO keywords(keyword)
-    VALUES(?)
+    SELECT keyword
+    FROM keywords
+    WHERE LOWER(keyword) = LOWER(?)
     """, (keyword,))
+
+    existing = cursor.fetchone()
+
+    if existing:
+        cursor.execute("""
+        UPDATE keywords
+        SET active = 1
+        WHERE LOWER(keyword) = LOWER(?)
+        """, (keyword,))
+    else:
+        cursor.execute("""
+        INSERT INTO keywords(keyword, active)
+        VALUES(?, 1)
+        """, (keyword,))
 
     conn.commit()
     conn.close()
@@ -125,16 +148,6 @@ def get_keywords():
     return keywords
 
 
-def delete_keyword(keyword):
-    """
-    Soft delete a keyword by setting active to 0.
-
-    The keyword remains in the database so historical data is preserved.
-    """
-
-    deactivate_keyword(keyword)
-
-
 def deactivate_keyword(keyword):
     """
     Deactivate a keyword.
@@ -166,6 +179,20 @@ def reactivate_keyword(keyword):
     cursor.execute("""
     UPDATE keywords
     SET active = 1
+    WHERE keyword = ?
+    """, (keyword,))
+
+    conn.commit()
+    conn.close()
+
+
+def remove_keyword(keyword):
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    DELETE FROM keywords
     WHERE keyword = ?
     """, (keyword,))
 
@@ -714,3 +741,48 @@ def get_latest_insights():
     conn.close()
 
     return rows
+
+
+def save_executive_briefing(briefing):
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    run_time = datetime.now().strftime(
+        "%Y-%m-%d %H:%M:%S"
+    )
+
+    cursor.execute("""
+    INSERT INTO executive_briefings(
+        run_time,
+        briefing
+    )
+    VALUES (?, ?)
+    """, (
+        run_time,
+        briefing
+    ))
+
+    conn.commit()
+    conn.close()
+
+
+def get_latest_executive_briefing():
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    SELECT
+        run_time,
+        briefing
+    FROM executive_briefings
+    ORDER BY run_time DESC
+    LIMIT 1
+    """)
+
+    row = cursor.fetchone()
+
+    conn.close()
+
+    return row

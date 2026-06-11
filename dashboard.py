@@ -12,8 +12,9 @@ from database import (
     add_keyword,
     get_keywords,
     get_all_keywords,
-    delete_keyword,
+    deactivate_keyword,
     reactivate_keyword,
+    remove_keyword,
     get_search_history,
     get_articles,
     get_article_keywords,
@@ -22,10 +23,37 @@ from database import (
     get_source_distribution,
     get_trending_keywords,
     get_trend_keywords,
-    get_latest_ai_insight
+    get_latest_ai_insight,
+    get_latest_executive_briefing
 )
 
 from main import main as run_analysis
+
+
+def extract_section(text, section_title):
+    lines = text.split("\n")
+
+    collecting = False
+    section_lines = []
+
+    section_titles = ["Top Opportunity", "Top Threat", "Fastest Growing Topic", "Regional Trend", "Recommended Actions"]
+
+    for line in lines:
+        clean_line = line.strip()
+
+        if section_title in clean_line:
+            collecting = True
+            continue
+
+        if collecting:
+            for title in section_titles:
+                if(title != section_title and title in clean_line):
+                    return "\n".join(section_lines)
+                
+            section_lines.append(line)
+
+    return "\n".join(section_lines)
+
 
 
 st.set_page_config(
@@ -52,13 +80,14 @@ api_key = st.sidebar.text_input(
 page = st.sidebar.radio(
     "Choose a page",
     [
+        "Executive Briefing",
         "Overview",
         "Keywords",
         "Run Analysis",
         "History",
         "Articles",
         "Trend",
-        "AI Insights"
+        "Keyword Intelligence"
 
     ]
 )
@@ -170,6 +199,25 @@ if page == "Overview":
         st.info("No source data yet.")
 
 
+
+elif page == "Executive Briefing":
+
+    st.header("Executive Briefing")
+
+    result = get_latest_executive_briefing()
+
+    if result:
+        run_time, briefing = result
+
+        st.caption(f"Generated at: {run_time}")
+        st.markdown(briefing)
+
+    else:
+        st.info(
+            "No executive briefing found. Please run analysis first."
+        )
+
+
 elif page == "Keywords":
 
     # Keyword management page.
@@ -189,8 +237,10 @@ elif page == "Keywords":
     # Display active and inactive keywords.
     keywords = get_all_keywords()
 
-    for keyword, active in keywords:
-        col1, col2 = st.columns([4, 1])
+    for i in range(len(keywords)):
+        keyword = keywords[i][0]
+        active = keywords[i][1]
+        col1, col2, col3= st.columns([4, 1, 1])
 
         with col1:
             if active == 1:
@@ -201,14 +251,23 @@ elif page == "Keywords":
         with col2:
             # Soft delete / reactivate keyword.
             if active == 1:
-                if st.button("Deactivate", key=f"deactivate_{keyword}"):
-                    delete_keyword(keyword)
+                if st.button("Deactivate", key=f"deactivate_{keyword}_{i}"):
+                    deactivate_keyword(keyword)
                     st.success(f"Deactivated: {keyword}")
                     st.rerun()
             else:
-                if st.button("Reactivate", key=f"reactivate_{keyword}"):
+                if st.button("Reactivate", key=f"reactivate_{keyword}_{i}"):
                     reactivate_keyword(keyword)
                     st.success(f"Reactivated: {keyword}")
+                    st.rerun()
+
+        with col3:
+            # Hard delete chosen keyword
+            if st.checkbox("Delete", key=f"donfirm_{keyword}_{i}"):
+                if st.button("Confirm", key=f"delete_{keyword}_{i}"):
+                    remove_keyword(keyword)
+
+                    st.success(f"Deleted: {keyword}")
                     st.rerun()
 
 
@@ -370,9 +429,9 @@ elif page == "Trend":
             st.info("No trend data found for this keyword.")
 
 
-elif page == "AI Insights":
+elif page == "Keyword Intelligence":
 
-    st.header("AI Insights")
+    st.header("Keyword Intelligence")
 
     keywords = get_article_keywords()
 
