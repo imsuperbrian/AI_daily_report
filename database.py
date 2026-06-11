@@ -499,6 +499,9 @@ def get_trending_keywords(limit=10):
 
         item["momentum_score"] = round(percentile * 40, 1)
 
+    if not total_count:
+        return []
+
     max_articles = max(item["latest"]for item in total_count)
 
     for item in total_count:
