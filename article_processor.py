@@ -129,13 +129,7 @@ def display_words_count(filtered_articles, keywords):
         if word in stop_words:
             continue
 
-        result += (
-            word
-            + " - "
-            + str(number)
-            + "\n"
-        )
-
+        result += (word + " - " + str(number) + "\n")
         count += 1
 
         # Only display the top 5 words.

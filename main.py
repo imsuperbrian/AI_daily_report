@@ -5,7 +5,7 @@ from ai_analyzer import analyze_market_sentiment, parse_ai_analysis, generate_ke
 from database import create_tables, save_search_run, get_search_history, save_articles, save_ai_insight, get_trending_keywords
 
 
-def main():
+def main(api_key = None):
     """
     Run the complete AI Daily Report pipeline.
 
@@ -26,21 +26,13 @@ def main():
     filtered_articles, keywords = collect_articles()
 
     # Remove duplicate headlines.
-    cleaned_articles = remove_duplicates(
-        filtered_articles
-    )
+    cleaned_articles = remove_duplicates(filtered_articles)
 
     # Generate article summary.
-    summary = summarize_articles(
-        cleaned_articles,
-        keywords
-    )
+    summary = summarize_articles(cleaned_articles, keywords)
 
     # Generate trending words report.
-    trending_words = display_words_count(
-        cleaned_articles,
-        keywords
-    )
+    trending_words = display_words_count(cleaned_articles, keywords)
 
     report = summary
 
@@ -50,20 +42,13 @@ def main():
     # Generate AI sentiment analysis.
     try:
 
-        ai_analysis = analyze_market_sentiment(
-            cleaned_articles
-        )
+        ai_analysis = analyze_market_sentiment(cleaned_articles, api_key)
 
     except Exception as e:
 
-        ai_analysis = (
-            "AI analysis skipped: "
-            + str(e)
-        )
+        ai_analysis = ("AI analysis skipped: " + str(e))
 
-    sentiment_label, summary_text = (
-        parse_ai_analysis(ai_analysis)
-    )
+    sentiment_label, summary_text = (parse_ai_analysis(ai_analysis))
 
     report += "\nAI Market Sentiment Analysis:\n"
     report += ai_analysis + "\n"
@@ -71,11 +56,7 @@ def main():
     print(report)
 
     # Save report to markdown file.
-    with open(
-        "daily_report.md",
-        "w",
-        encoding="utf-8"
-    ) as file:
+    with open("daily_report.md", "w" ,encoding="utf-8") as file:
 
         file.write("# AI Daily Report\n\n")
         file.write(report)
@@ -88,57 +69,31 @@ def main():
         # Find articles associated with the current keyword.
         for article in cleaned_articles:
 
-            article_keywords = (
-                article["keywords"]
-                .lower()
-            )
+            article_keywords = (article["keywords"].lower())
 
             if keyword.lower() in article_keywords:
                 keyword_articles.append(article)
 
         # Save trend history.
-        save_search_run(
-            keyword,
-            len(keyword_articles),
-            sentiment_label,
-            summary_text
-        )
+        save_search_run(keyword, len(keyword_articles), sentiment_label, summary_text)
 
         print("Saving articles for:", keyword)
-        print(
-            "Article count:",
-            len(keyword_articles)
-        )
+        print("Article count:", len(keyword_articles))
 
         # Save article details.
-        save_articles(
-            keyword,
-            keyword_articles
-        )
+        save_articles(keyword, keyword_articles)
 
         # Generate and save AI insight.
-        insight = generate_keyword_insight(
-            keyword,
-            keyword_articles
-        )
+        insight = generate_keyword_insight(keyword, keyword_articles, api_key)
 
-        save_ai_insight(
-            keyword,
-            insight
-        )
+        save_ai_insight(keyword, insight)
 
         report += f"\n\n## AI Insight for {keyword}\n"
         report += insight
 
-    print(
-        get_search_history(
-            "nvidia"
-        )
-    )
+    print(get_search_history("nvidia"))
 
     print("History saved!")
-    print(get_trending_keywords())
-
 
 if __name__ == "__main__":
     main()

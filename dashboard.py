@@ -42,6 +42,13 @@ st.title("AI Daily Report Dashboard")
 # Sidebar navigation.
 st.sidebar.header("Menu")
 
+st.sidebar.subheader("API Settings")
+
+api_key = st.sidebar.text_input(
+    "OpenAI API Key",
+    type="password"
+)
+
 page = st.sidebar.radio(
     "Choose a page",
     [
@@ -215,10 +222,15 @@ elif page == "Run Analysis":
     )
 
     if st.button("Run Analysis"):
-        with st.spinner("Running analysis..."):
-            run_analysis()
 
-        st.success("Analysis completed.")
+        if not api_key:
+            st.error("Please enter your OpenAI API key first.")
+
+        else:
+            with st.spinner("Running analysis..."):
+                run_analysis(api_key)
+
+            st.success("Analysis completed.")
 
         # Display latest generated report.
         try:

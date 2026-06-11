@@ -1,6 +1,6 @@
 from openai import OpenAI
 
-def analyze_market_sentiment(filtered_articles):
+def analyze_market_sentiment(filtered_articles, api_key = None):
     """
     Analyze market sentiment using OpenAI.
 
@@ -20,7 +20,7 @@ def analyze_market_sentiment(filtered_articles):
     """
 
     # Create OpenAI client using OPENAI_API_KEY
-    client = OpenAI()
+    client = OpenAI(api_key = api_key)
 
     # Handle empty article list.
     if not filtered_articles:
@@ -108,12 +108,12 @@ def parse_ai_analysis(ai_text):
     return sentiment, summary
 
 
-def generate_keyword_insight(keyword, articles):
+def generate_keyword_insight(keyword, articles, api_key = None):
 
     if not articles:
         return "No articles available for insight generation."
 
-    client = OpenAI()
+    client = OpenAI(api_key = api_key)
 
     headlines = []
 
