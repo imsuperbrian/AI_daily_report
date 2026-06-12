@@ -5,7 +5,7 @@ from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 
-from database import get_active_group_keywords
+from database import get_active_group_keywords, get_custom_sources
 
 def get_sources():
     """
