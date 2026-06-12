@@ -100,6 +100,16 @@ def create_tables():
     )
     """)
 
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS custom_sources(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT UNIQUE,
+        url TEXT UNIQUE,
+        type TEXT,
+        active INTEGER DEFAULT 1
+    )
+    """)
+
     conn.commit()
     conn.close()
 
@@ -1092,3 +1102,61 @@ def get_active_group_keywords():
         keywords.append(row[0])
 
     return keywords
+
+
+def add_custom_source(
+    name,
+    url,
+    source_type="custom"
+):
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    INSERT OR IGNORE INTO custom_sources(
+        name,
+        url,
+        type,
+        active
+    )
+    VALUES (?, ?, ?, 1)
+    """, (
+        name,
+        url,
+        source_type
+    ))
+
+    conn.commit()
+    conn.close()
+
+
+def get_custom_sources():
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    SELECT
+        name,
+        url,
+        type
+    FROM custom_sources
+    WHERE active = 1
+    """)
+
+    rows = cursor.fetchall()
+
+    conn.close()
+
+    sources = []
+
+    for row in rows:
+
+        sources.append({
+            "name": row[0],
+            "url": row[1],
+            "type": row[2]
+        })
+
+    return sources

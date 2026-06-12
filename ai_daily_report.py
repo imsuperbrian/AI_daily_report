@@ -1,6 +1,9 @@
 import requests
 import feedparser
 import pandas as pd
+from urllib.parse import urljoin
+from bs4 import BeautifulSoup
+from urllib.parse import urljoin
 
 from database import get_active_group_keywords
 
@@ -287,7 +290,8 @@ def collect_articles():
         keywords: Active keywords used for filtering.
     """
 
-    sources = get_sources()
+    sources = (get_sources() + get_custom_sources())
+
     keywords = get_active_group_keywords()
 
     print("active group keywords:", keywords)
@@ -312,3 +316,119 @@ def collect_articles():
     )
 
     return filtered_articles, keywords
+
+
+
+def find_rss_feed(website_url):
+
+    website_url = website_url.strip()
+
+    if len(website_url) == 0:
+        return None
+
+    # 0. First, test if the input URL itself is already an RSS feed.
+    try:
+        response = requests.get(
+            website_url,
+            headers={
+                "User-Agent": "Mozilla/5.0"
+            },
+            timeout=10
+        )
+
+        feed = feedparser.parse(
+            response.content
+        )
+
+        if feed.entries:
+            return website_url
+
+    except Exception as e:
+        print("Direct RSS test failed:", e)
+
+    # 1. Try common RSS paths.
+    possible_paths = [
+        "/feed/",
+        "/feed",
+        "/rss",
+        "/rss.xml",
+        "/feed.xml",
+        "/atom.xml",
+        "/news/rss",
+        "/blog/feed/"
+    ]
+
+    for path in possible_paths:
+
+        try:
+            rss_url = urljoin(website_url, path)
+
+            response = requests.get(
+                rss_url,
+                headers={
+                    "User-Agent": "Mozilla/5.0"
+                },
+                timeout=10
+            )
+
+            feed = feedparser.parse(
+                response.content
+            )
+
+            if feed.entries:
+                return rss_url
+
+        except Exception as e:
+            print("RSS path test failed:", e)
+
+    # 2. Try to find RSS link from HTML.
+    try:
+        response = requests.get(
+            website_url,
+            timeout=10,
+            headers={
+                "User-Agent": "Mozilla/5.0"
+            }
+        )
+
+        soup = BeautifulSoup(
+            response.text,
+            "html.parser"
+        )
+
+        links = soup.find_all(
+            "link",
+            rel="alternate"
+        )
+
+        for link in links:
+
+            link_type = link.get("type", "")
+            href = link.get("href", "")
+
+            if "rss" in link_type or "atom" in link_type:
+
+                rss_url = urljoin(
+                    website_url,
+                    href
+                )
+
+                response = requests.get(
+                    rss_url,
+                    headers={
+                        "User-Agent": "Mozilla/5.0"
+                    },
+                    timeout=10
+                )
+
+                feed = feedparser.parse(
+                    response.content
+                )
+
+                if feed.entries:
+                    return rss_url
+
+    except Exception as e:
+        print("RSS finder error:", e)
+
+    return None

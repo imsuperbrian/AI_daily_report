@@ -4,3 +4,5 @@ feedparser
 pandas
 pyinstaller
 streamlit
+beautifulsoup4
+requests

@@ -30,10 +30,12 @@ from database import (
     deactivate_keyword_group,
     remove_keyword_from_group,
     remove_keyword_group,
-    get_history_center_data
+    get_history_center_data,
+    add_custom_source,
+    get_custom_sources
     )
-
 from main import main as run_analysis
+from ai_daily_report import find_rss_feed
 
 
 def extract_section(text, section_title):
@@ -91,8 +93,8 @@ page = st.sidebar.radio(
         "Keywords",
         "Run Analysis",
         "History",
-        "Keyword Intelligence"
-
+        "Keyword Intelligence",
+        "Sources"
     ]
 )
 
@@ -607,4 +609,52 @@ elif page == "Keyword Intelligence":
         else:
             st.info(
                 "No AI insight found. Please run analysis first."
+            )
+
+
+
+elif page == "Sources":
+
+    st.header("Custom Sources")
+
+    source_name = st.text_input(
+        "Source Name"
+    )
+
+    website_url = st.text_input(
+        "Website URL"
+    )
+
+    if st.button("Find RSS"):
+
+        rss_url = find_rss_feed(
+            website_url
+        )
+
+        if rss_url:
+
+            st.success(
+                "RSS Feed Found"
+            )
+
+            st.code(rss_url)
+
+            if st.button("Add Source"):
+
+                add_custom_source(
+                    source_name,
+                    rss_url,
+                    "custom"
+                )
+
+                st.success(
+                    "Source Added"
+                )
+
+                st.rerun()
+
+        else:
+
+            st.error(
+                "No RSS Feed Found"
             )
