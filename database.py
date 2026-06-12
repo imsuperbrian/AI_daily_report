@@ -81,6 +81,25 @@ def create_tables():
     )
     """)
 
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS keyword_groups(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        group_name TEXT UNIQUE,
+        active INTEGER DEFAULT 1
+    )
+    """)
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS group_keywords(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        group_id INTEGER,
+        keyword TEXT,
+        active INTEGER DEFAULT 1,
+        UNIQUE(group_id, keyword),
+        FOREIGN KEY(group_id) REFERENCES keyword_groups(id)
+    )
+    """)
+
     conn.commit()
     conn.close()
 
@@ -193,6 +212,26 @@ def remove_keyword(keyword):
 
     cursor.execute("""
     DELETE FROM keywords
+    WHERE keyword = ?
+    """, (keyword,))
+
+    cursor.execute("""
+    DELETE FROM search_runs
+    WHERE keyword = ?
+    """, (keyword,))
+
+    cursor.execute("""
+    DELETE FROM articles
+    WHERE keyword = ?
+    """, (keyword,))
+
+    cursor.execute("""
+    DELETE FROM ai_insights
+    WHERE keyword = ?
+    """, (keyword,))
+
+    cursor.execute("""
+    DELETE FROM group_keywords
     WHERE keyword = ?
     """, (keyword,))
 
@@ -786,3 +825,255 @@ def get_latest_executive_briefing():
     conn.close()
 
     return row
+
+
+def add_keyword_group(group_name):
+
+    group_name = group_name.strip()
+
+    if len(group_name) == 0:
+        return
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    SELECT id
+    FROM keyword_groups
+    WHERE group_name = ?
+    """, (group_name,))
+
+    existing = cursor.fetchone()
+
+    if existing:
+        cursor.execute("""
+        UPDATE keyword_groups
+        SET active = 1
+        WHERE group_name = ?
+        """, (group_name,))
+    else:
+        cursor.execute("""
+        INSERT INTO keyword_groups(
+            group_name,
+            active
+        )
+        VALUES(?, 1)
+        """, (group_name,))
+
+    conn.commit()
+    conn.close()
+
+
+def get_keyword_groups():
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    SELECT
+        id,
+        group_name,
+        active
+    FROM keyword_groups
+    ORDER BY group_name
+    """)
+
+    rows = cursor.fetchall()
+
+    conn.close()
+
+    return rows
+
+
+def add_keyword_to_group(group_id, keyword):
+
+    keyword = keyword.strip().lower()
+
+    if len(keyword) == 0:
+        return
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    INSERT OR IGNORE INTO group_keywords(
+        group_id,
+        keyword,
+        active
+    )
+    VALUES(?, ?, 1)
+    """, (
+        group_id,
+        keyword
+    ))
+
+    conn.commit()
+    conn.close()
+
+
+def get_keywords_by_group(group_id):
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    SELECT
+        keyword,
+        active
+    FROM group_keywords
+    WHERE group_id = ?
+    ORDER BY keyword
+    """, (group_id,))
+
+    rows = cursor.fetchall()
+
+    conn.close()
+
+    return rows
+
+def deactivate_keyword_group(group_id):
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    UPDATE keyword_groups
+    SET active = 0
+    WHERE id = ?
+    """, (group_id,))
+
+    conn.commit()
+    conn.close()
+
+
+def activate_keyword_group(group_id):
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    UPDATE keyword_groups
+    SET active = 1
+    WHERE id = ?
+    """, (group_id,))
+
+    conn.commit()
+    conn.close()
+
+
+def deactivate_group_keyword(group_id, keyword):
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    UPDATE group_keywords
+    SET active = 0
+    WHERE group_id = ?
+    AND keyword = ?
+    """, (
+        group_id,
+        keyword
+    ))
+
+    conn.commit()
+    conn.close()
+
+
+def activate_group_keyword(
+    group_id,
+    keyword
+):
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    UPDATE group_keywords
+    SET active = 1
+    WHERE group_id = ?
+    AND keyword = ?
+    """, (
+        group_id,
+        keyword
+    ))
+
+    conn.commit()
+    conn.close()
+
+
+def remove_keyword_from_group(group_id, keyword):
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    DELETE FROM group_keywords
+    WHERE group_id = ?
+    AND keyword = ?
+    """, (
+        group_id,
+        keyword
+    ))
+
+    conn.commit()
+    conn.close()
+
+def remove_keyword_group(group_id):
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    DELETE FROM group_keywords
+    WHERE group_id = ?
+    """, (group_id,))
+
+    cursor.execute("""
+    DELETE FROM keyword_groups
+    WHERE id = ?
+    """, (group_id,))
+
+    conn.commit()
+    conn.close()
+
+
+def get_history_center_data(keyword):
+
+    history = get_search_history(keyword)
+    trend_data = get_trend_data(keyword)
+    articles = get_articles(keyword, limit=50)
+    latest_insight = get_latest_ai_insight(keyword)
+
+    return {
+        "history": history,
+        "trend_data": trend_data,
+        "articles": articles,
+        "latest_insight": latest_insight
+    }
+
+
+def get_active_group_keywords():
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    SELECT DISTINCT
+        group_keywords.keyword
+    FROM group_keywords
+    JOIN keyword_groups
+    ON group_keywords.group_id = keyword_groups.id
+    WHERE group_keywords.active = 1 AND keyword_groups.active = 1
+    ORDER BY group_keywords.keyword
+    """)
+
+    rows = cursor.fetchall()
+
+    conn.close()
+
+    keywords = []
+    for row in rows:
+        keywords.append(row[0])
+
+    return keywords

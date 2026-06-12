@@ -2,8 +2,7 @@ import requests
 import feedparser
 import pandas as pd
 
-from database import get_keywords
-
+from database import get_active_group_keywords
 
 def get_sources():
     """
@@ -370,7 +369,9 @@ def collect_articles():
     """
 
     sources = get_sources()
-    keywords = get_keywords()
+    keywords = get_active_group_keywords()
+
+    print("active group keywords:", keywords)
 
     all_articles = collect_all_articles(sources)
     filtered_articles = filter_articles(

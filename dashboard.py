@@ -9,12 +9,7 @@ import streamlit as st
 import pandas as pd
 from database import (
     create_tables,
-    add_keyword,
     get_keywords,
-    get_all_keywords,
-    deactivate_keyword,
-    reactivate_keyword,
-    remove_keyword,
     get_search_history,
     get_articles,
     get_article_keywords,
@@ -24,8 +19,19 @@ from database import (
     get_trending_keywords,
     get_trend_keywords,
     get_latest_ai_insight,
-    get_latest_executive_briefing
-)
+    get_latest_executive_briefing,
+    add_keyword_group,
+    get_keyword_groups,
+    add_keyword_to_group,
+    get_keywords_by_group,
+    activate_group_keyword,
+    deactivate_group_keyword,
+    activate_keyword_group,
+    deactivate_keyword_group,
+    remove_keyword_from_group,
+    remove_keyword_group,
+    get_history_center_data
+    )
 
 from main import main as run_analysis
 
@@ -85,8 +91,6 @@ page = st.sidebar.radio(
         "Keywords",
         "Run Analysis",
         "History",
-        "Articles",
-        "Trend",
         "Keyword Intelligence"
 
     ]
@@ -220,55 +224,141 @@ elif page == "Executive Briefing":
 
 elif page == "Keywords":
 
-    # Keyword management page.
-    st.header("Keyword Management")
+    st.header("Keyword Groups")
 
-    # Add new keyword.
-    new_keyword = st.text_input("Add a new keyword")
+    st.subheader("Create New Group")
 
-    if st.button("Add Keyword"):
-        if new_keyword.strip():
-            add_keyword(new_keyword.strip().lower())
-            st.success(f"Added keyword: {new_keyword}")
+    new_group = st.text_input("Group name")
+
+    if st.button("Add Group"):
+        if len(new_group.strip()) != 0:
+            add_keyword_group(new_group.strip())
+            st.success("Group Added: " + new_group)
             st.rerun()
+        else:
+            st.warning("Group name cannot be empty.")
 
-    st.subheader("Current Keywords")
+    st.divider()
 
-    # Display active and inactive keywords.
-    keywords = get_all_keywords()
+    groups = get_keyword_groups()
 
-    for i in range(len(keywords)):
-        keyword = keywords[i][0]
-        active = keywords[i][1]
-        col1, col2, col3= st.columns([4, 1, 1])
+    if len(groups) == 0:
+        st.info("No groups yet. Create a group first.")
+
+    else:
+        group_names = []
+
+        for i in range(len(groups)):
+
+            group_id = groups[i][0]
+            group_name = groups[i][1]
+            group_active = groups[i][2]
+
+            if group_active == 1:
+                group_names.append(f"🟢 {group_name}")
+            else:
+                group_names.append(f"🔴 {group_name}")
+
+        selected_group = st.selectbox("Choose a group", group_names)
+
+        selected_group_id = None
+        selected_group_name = None
+        selected_group_active = None
+
+        for i in range(len(groups)):
+
+            group_id = groups[i][0]
+            group_name = groups[i][1]
+            group_active = groups[i][2]
+
+            if group_active == 1:
+                display_name = f"🟢 {group_name}"
+            else:
+                display_name = f"🔴 {group_name}"
+
+            if display_name == selected_group:
+                selected_group_id = group_id
+                selected_group_name = group_name
+                selected_group_active = group_active
+
+        st.subheader("Group: " + selected_group_name)
+
+        col1, col2 = st.columns(2)
 
         with col1:
-            if active == 1:
-                st.write(f"🟢 {keyword}")
+
+            if selected_group_active == 1:
+                if st.button("Deactivate Group", key=f"deactivate_group_{selected_group_id}"):
+                    deactivate_keyword_group(selected_group_id)
+                    st.rerun()
+
             else:
-                st.write(f"🔴 {keyword}")
+                if st.button("Activate Group", key=f"activate_group_{selected_group_id}"):
+                    activate_keyword_group(selected_group_id)
+                    st.rerun()
 
         with col2:
-            # Soft delete / reactivate keyword.
-            if active == 1:
-                if st.button("Deactivate", key=f"deactivate_{keyword}_{i}"):
-                    deactivate_keyword(keyword)
-                    st.success(f"Deactivated: {keyword}")
+
+            if st.checkbox("Delete Group", key=f"confirm_group_delete_{selected_group_id}"):
+
+                if st.button("Confirm", key=f"delete_group_{selected_group_id}"):
+                    remove_keyword_group(selected_group_id)
+
+                    st.success(f"Deleted group: {selected_group_name}")
+
                     st.rerun()
+
+        st.divider()
+
+        new_keyword = st.text_input("Add keyword to this group")
+
+        if st.button("Add Keyword to Group"):
+            if len(new_keyword.strip()) != 0:
+                add_keyword_to_group(selected_group_id, new_keyword.strip())
+                st.success(f"Added keyword: {new_keyword}")
+                st.rerun()
+
             else:
-                if st.button("Reactivate", key=f"reactivate_{keyword}_{i}"):
-                    reactivate_keyword(keyword)
-                    st.success(f"Reactivated: {keyword}")
-                    st.rerun()
+                st.warning("Keyword cannot be empty.")
 
-        with col3:
-            # Hard delete chosen keyword
-            if st.checkbox("Delete", key=f"donfirm_{keyword}_{i}"):
-                if st.button("Confirm", key=f"delete_{keyword}_{i}"):
-                    remove_keyword(keyword)
+        st.divider()
 
-                    st.success(f"Deleted: {keyword}")
-                    st.rerun()
+        st.subheader("Keywords in this group")
+
+        group_keywords = get_keywords_by_group(selected_group_id)
+
+        if not group_keywords:
+            st.info("No keywords in this group yet.")
+
+        else:
+            for i in range(len(group_keywords)):
+
+                keyword = group_keywords[i][0]
+                active = group_keywords[i][1]
+
+                col1, col2, col3 = st.columns([4, 1, 1])
+
+                with col1:
+                    if active == 1:
+                        st.write(f"🟢 {keyword}")
+                    else:
+                        st.write(f"🔴 {keyword}")
+
+                with col2:
+                    if active == 1:
+                        if st.button("Deactivate",key=f"deactivate_keyword_{selected_group_id}_{keyword}_{i}"):
+                            deactivate_group_keyword(selected_group_id, keyword)
+                            st.rerun()
+
+                    else:
+                        if st.button("Activate", key=f"activate_keyword_{selected_group_id}_{keyword}_{i}"):
+                            activate_group_keyword(selected_group_id, keyword)
+                            st.rerun()
+
+                with col3:
+                    if st.button("Remove", key=f"remove_keyword_{selected_group_id}_{keyword}_{i}"):
+                        remove_keyword_from_group(selected_group_id, keyword)
+                        st.rerun()
 
 
 elif page == "Run Analysis":
@@ -276,9 +366,7 @@ elif page == "Run Analysis":
     # Run full analysis pipeline.
     st.header("Run AI Daily Report")
 
-    st.write(
-        "This will run analysis using all active keywords in the database."
-    )
+    st.write("This will run analysis using all active keywords in the database.")
 
     if st.button("Run Analysis"):
 
@@ -304,129 +392,191 @@ elif page == "Run Analysis":
 
 elif page == "History":
 
-    # Historical search results page.
-    st.header("Search History")
+    st.header("History Center")
 
-    keywords = get_keywords()
+    keywords = get_trend_keywords()
 
     if not keywords:
-        st.info("No keywords available.")
+        st.info("No history data available.")
+
     else:
         selected_keyword = st.selectbox(
             "Choose keyword",
             keywords
         )
 
-        history = get_search_history(selected_keyword)
+        data = get_history_center_data(
+            selected_keyword
+        )
+
+        history = data["history"]
+        trend_data = data["trend_data"]
+        articles = data["articles"]
+        latest_insight = data["latest_insight"]
+
+        st.subheader(f"History for {selected_keyword}")
 
         if history:
-            st.subheader(f"History for {selected_keyword}")
 
-            # Display historical analysis runs.
-            for row in history:
-                run_time = row[0]
-                article_count = row[1]
-                sentiment = row[2]
+            for i in range(len(history)):
 
-                st.write(
+                run_time = history[i][0]
+                article_count = history[i][1]
+                sentiment = history[i][2]
+                summary = history[i][3]
+
+                with st.expander(
                     f"{run_time} | {article_count} articles | {sentiment}"
-                )
+                ):
+
+                    st.subheader("Summary")
+                    st.write(summary)
+
+                    st.subheader("Trend")
+
+                    if trend_data:
+                        df_trend = pd.DataFrame(
+                            trend_data,
+                            columns=["Time", "Article Count"]
+                        )
+
+                        df_trend["Time"] = pd.to_datetime(
+                            df_trend["Time"]
+                        )
+
+                        df_trend = df_trend.sort_values("Time")
+
+                        st.line_chart(
+                            df_trend.set_index("Time")["Article Count"]
+                        )
+
+                        st.dataframe(df_trend)
+
+                    else:
+                        st.info("No trend data available.")
+
+                    st.subheader("Articles")
+
+                    if articles:
+                        for article in articles:
+                            title = article[0]
+                            source = article[1]
+                            published = article[2]
+                            link = article[3]
+
+                            st.write(f"**{title}**")
+                            st.caption(f"{source} | {published}")
+                            st.link_button("Open Article", link)
+                            st.divider()
+                    else:
+                        st.info("No articles found.")
+
+                    st.subheader("Keyword Intelligence")
+
+                    if latest_insight:
+                        insight_time = latest_insight[0]
+                        insight = latest_insight[1]
+
+                        st.caption(f"Generated at: {insight_time}")
+                        st.markdown(insight)
+                    else:
+                        st.info("No keyword intelligence found.")
 
         else:
             st.info("No history found for this keyword.")
 
 
-elif page == "Articles":
+# elif page == "Articles":
 
-    # Article browsing page.
-    st.header("Articles")
+#     # Article browsing page.
+#     st.header("Articles")
 
-    keywords = get_article_keywords()
+#     keywords = get_article_keywords()
 
-    if not keywords:
-        st.info("No articles available.")
-    else:
-        selected_keyword = st.selectbox(
-            "Choose keyword",
-            keywords
-        )
+#     if not keywords:
+#         st.info("No articles available.")
+#     else:
+#         selected_keyword = st.selectbox(
+#             "Choose keyword",
+#             keywords
+#         )
 
-        articles = get_articles(selected_keyword)
+#         articles = get_articles(selected_keyword)
 
-        st.write("Articles Found:", len(articles))
+#         st.write("Articles Found:", len(articles))
 
-        if articles:
-            # Display stored articles.
-            for article in articles:
-                title = article[0]
-                source = article[1]
-                published = article[2]
-                link = article[3]
+#         if articles:
+#             # Display stored articles.
+#             for article in articles:
+#                 title = article[0]
+#                 source = article[1]
+#                 published = article[2]
+#                 link = article[3]
 
-                st.subheader(title)
-                st.write(f"{source} | {published}")
-                st.link_button("Open Article", link)
-                st.divider()
+#                 st.subheader(title)
+#                 st.write(f"{source} | {published}")
+#                 st.link_button("Open Article", link)
+#                 st.divider()
 
-        else:
-            st.info("No articles found.")
+#         else:
+#             st.info("No articles found.")
 
 
-elif page == "Trend":
+# elif page == "Trend":
 
-    # Article count trend page.
-    st.header("Trend Analytics")
+#     # Article count trend page.
+#     st.header("Trend Analytics")
 
-    keywords = get_trend_keywords()
+#     keywords = get_trend_keywords()
 
-    if not keywords:
-        st.info("No trend data available.")
-    else:
-        selected_keyword = st.selectbox(
-            "Choose keyword",
-            keywords
-        )
+#     if not keywords:
+#         st.info("No trend data available.")
+#     else:
+#         selected_keyword = st.selectbox(
+#             "Choose keyword",
+#             keywords
+#         )
 
-        trend_data = get_trend_data(selected_keyword)
+#         trend_data = get_trend_data(selected_keyword)
 
-        if trend_data:
+#         if trend_data:
 
-            df = pd.DataFrame(
-                trend_data,
-                columns=["Time", "Article Count"]
-            )
+#             df = pd.DataFrame(
+#                 trend_data,
+#                 columns=["Time", "Article Count"]
+#             )
 
-            # Convert time strings into datetime objects.
-            df["Time"] = pd.to_datetime(df["Time"])
+#             # Convert time strings into datetime objects.
+#             df["Time"] = pd.to_datetime(df["Time"])
 
-            df = df.sort_values("Time")
+#             df = df.sort_values("Time")
 
-            latest_count = df["Article Count"].iloc[-1]
+#             latest_count = df["Article Count"].iloc[-1]
 
-            # Compare latest run with previous run.
-            if len(df) >= 2:
-                previous_count = df["Article Count"].iloc[-2]
-                change = latest_count - previous_count
-            else:
-                change = 0
+#             # Compare latest run with previous run.
+#             if len(df) >= 2:
+#                 previous_count = df["Article Count"].iloc[-2]
+#                 change = latest_count - previous_count
+#             else:
+#                 change = 0
 
-            st.metric(
-                "Latest Article Count",
-                latest_count,
-                change
-            )
+#             st.metric(
+#                 "Latest Article Count",
+#                 latest_count,
+#                 change
+#             )
 
-            # Line chart for article count over time.
-            st.line_chart(
-                df.set_index("Time")["Article Count"]
-            )
+#             # Line chart for article count over time.
+#             st.line_chart(
+#                 df.set_index("Time")["Article Count"]
+#             )
 
-            # Raw data for verification.
-            st.subheader("Raw Trend Data")
-            st.dataframe(df)
+#             # Raw data for verification.
+#             st.subheader("Raw Trend Data")
+#             st.dataframe(df)
 
-        else:
-            st.info("No trend data found for this keyword.")
+#         else:
+#             st.info("No trend data found for this keyword.")
 
 
 elif page == "Keyword Intelligence":
