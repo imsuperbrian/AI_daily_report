@@ -1016,6 +1016,21 @@ def remove_keyword_from_group(group_id, keyword):
         keyword
     ))
 
+    cursor.execute("""
+    DELETE FROM search_runs
+    WHERE keyword = ?
+    """, (keyword,))
+
+    cursor.execute("""
+    DELETE FROM articles
+    WHERE keyword = ?
+    """, (keyword,))
+
+    cursor.execute("""
+    DELETE FROM ai_insights
+    WHERE keyword = ?
+    """, (keyword,))
+
     conn.commit()
     conn.close()
 

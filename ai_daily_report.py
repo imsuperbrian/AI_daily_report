@@ -15,258 +15,177 @@ def get_sources():
     """
 
     return [
-        # General technology news
-        {
-            "name": "NYTimes Technology",
-            "url": "https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml",
-            "type": "news"
-        },
-        {
-            "name": "TechCrunch",
-            "url": "https://techcrunch.com/feed/",
-            "type": "news"
-        },
-        {
-            "name": "The Verge",
-            "url": "https://www.theverge.com/rss/index.xml",
-            "type": "news"
-        },
-        {
-            "name": "Ars Technica",
-            "url": "https://feeds.arstechnica.com/arstechnica/index",
-            "type": "news"
-        },
-        {
-            "name": "Wired",
-            "url": "https://www.wired.com/feed/rss",
-            "type": "news"
-        },
-        {
-            "name": "VentureBeat",
-            "url": "https://venturebeat.com/feed/",
-            "type": "news"
-        },
-        {
-            "name": "MIT News",
-            "url": "https://news.mit.edu/rss/feed",
-            "type": "news"
-        },
-        {
-            "name": "MIT Technology Review",
-            "url": "https://www.technologyreview.com/feed/",
-            "type": "news"
-        },
+    # International technology news
+    {
+        "name": "TechCrunch",
+        "url": "https://techcrunch.com/feed/",
+        "type": "technology"
+    },
+    {
+        "name": "The Verge",
+        "url": "https://www.theverge.com/rss/index.xml",
+        "type": "technology"
+    },
+    {
+        "name": "Ars Technica",
+        "url": "https://feeds.arstechnica.com/arstechnica/index",
+        "type": "technology"
+    },
+    {
+        "name": "Wired",
+        "url": "https://www.wired.com/feed/rss",
+        "type": "technology"
+    },
+    {
+        "name": "VentureBeat",
+        "url": "https://venturebeat.com/feed/",
+        "type": "technology"
+    },
+    {
+        "name": "MIT Technology Review",
+        "url": "https://www.technologyreview.com/feed/",
+        "type": "technology"
+    },
 
-        # Apple-related sources
-        {
-            "name": "Apple Newsroom",
-            "url": "https://www.apple.com/newsroom/rss-feed.rss",
-            "type": "official"
-        },
-        {
-            "name": "9to5Mac",
-            "url": "https://9to5mac.com/feed/",
-            "type": "news"
-        },
-        {
-            "name": "MacRumors",
-            "url": "https://feeds.macrumors.com/MacRumors-All",
-            "type": "news"
-        },
-        {
-            "name": "AppleInsider",
-            "url": "https://appleinsider.com/rss/news",
-            "type": "news"
-        },
+    # Taiwan / Chinese technology and business news
+    {
+        "name": "Google News Taiwan Tech",
+        "url": "https://news.google.com/rss/search?q=科技&hl=zh-TW&gl=TW&ceid=TW:zh-Hant",
+        "type": "technology_tw"
+    },
+    {
+        "name": "Google News Taiwan Business",
+        "url": "https://news.google.com/rss/search?q=財經&hl=zh-TW&gl=TW&ceid=TW:zh-Hant",
+        "type": "business_tw"
+    },
+    {
+        "name": "Google News Taiwan IoT",
+        "url": "https://news.google.com/rss/search?q=物聯網&hl=zh-TW&gl=TW&ceid=TW:zh-Hant",
+        "type": "iot_tw"
+    },
+    {
+        "name": "Google News Taiwan Smart Retail",
+        "url": "https://news.google.com/rss/search?q=智慧零售&hl=zh-TW&gl=TW&ceid=TW:zh-Hant",
+        "type": "retail_tw"
+    },
+    {
+        "name": "Google News Taiwan Electronic Shelf Label",
+        "url": "https://news.google.com/rss/search?q=電子貨架標籤 OR 電子價籤&hl=zh-TW&gl=TW&ceid=TW:zh-Hant",
+        "type": "esl_tw"
+    },
 
-        # AI company official sources
-        {
-            "name": "OpenAI News",
-            "url": "https://openai.com/news/rss.xml",
-            "type": "official"
-        },
-        {
-            "name": "Anthropic",
-            "url": "https://www.anthropic.com/news/rss.xml",
-            "type": "official"
-        },
-        {
-            "name": "Google DeepMind",
-            "url": "https://deepmind.google/blog/rss.xml",
-            "type": "official"
-        },
-        {
-            "name": "Google AI Blog",
-            "url": "https://blog.google/technology/ai/rss/",
-            "type": "official"
-        },
-        {
-            "name": "Microsoft AI Blog",
-            "url": "https://blogs.microsoft.com/ai/feed/",
-            "type": "official"
-        },
+    # ESL / Smart retail / Retail automation
+    {
+        "name": "Google News Electronic Shelf Label",
+        "url": "https://news.google.com/rss/search?q=electronic%20shelf%20label&hl=en-US&gl=US&ceid=US:en",
+        "type": "esl"
+    },
+    {
+        "name": "Google News ESL Market",
+        "url": "https://news.google.com/rss/search?q=electronic%20shelf%20label%20market&hl=en-US&gl=US&ceid=US:en",
+        "type": "esl"
+    },
+    {
+        "name": "Google News Smart Retail",
+        "url": "https://news.google.com/rss/search?q=smart%20retail&hl=en-US&gl=US&ceid=US:en",
+        "type": "retail"
+    },
+    {
+        "name": "Google News Retail Automation",
+        "url": "https://news.google.com/rss/search?q=retail%20automation&hl=en-US&gl=US&ceid=US:en",
+        "type": "retail"
+    },
+    {
+        "name": "Google News Inventory Automation",
+        "url": "https://news.google.com/rss/search?q=inventory%20automation%20OR%20inventory%20visibility&hl=en-US&gl=US&ceid=US:en",
+        "type": "retail"
+    },
 
-        # Semiconductor and AI infrastructure
-        {
-            "name": "NVIDIA News",
-            "url": "https://nvidianews.nvidia.com/releases.xml",
-            "type": "official"
-        },
-        {
-            "name": "NVIDIA Blog",
-            "url": "https://blogs.nvidia.com/feed/",
-            "type": "official"
-        },
+    # M2COMM competitor intelligence
+    {
+        "name": "Google News ESL Competitors",
+        "url": "https://news.google.com/rss/search?q=Hanshow%20OR%20VusionGroup%20OR%20Pricer%20OR%20SOLUM%20OR%20Zkong%20OR%20Displaydata&hl=en-US&gl=US&ceid=US:en",
+        "type": "competitor"
+    },
+    {
+        "name": "Google News Vusion Hanshow Pricer",
+        "url": "https://news.google.com/rss/search?q=VusionGroup%20OR%20Hanshow%20OR%20Pricer&hl=en-US&gl=US&ceid=US:en",
+        "type": "competitor"
+    },
 
-        # Google News topic feeds
-        {
-            "name": "Google News AI",
-            "url": "https://news.google.com/rss/search?q=AI",
-            "type": "news"
-        },
-        {
-            "name": "Google News NVIDIA",
-            "url": "https://news.google.com/rss/search?q=NVIDIA",
-            "type": "news"
-        },
-        {
-            "name": "Google News Tesla",
-            "url": "https://news.google.com/rss/search?q=Tesla",
-            "type": "news"
-        },
-        {
-            "name": "Google News OpenAI",
-            "url": "https://news.google.com/rss/search?q=OpenAI",
-            "type": "news"
-        },
+    # Retail industry sources
+    {
+        "name": "Retail Dive",
+        "url": "https://www.retaildive.com/feeds/news/",
+        "type": "retail"
+    },
+    {
+        "name": "Retail Technology Innovation Hub",
+        "url": "https://retailtechinnovationhub.com/home?format=rss",
+        "type": "retail"
+    },
+    {
+        "name": "RetailWire",
+        "url": "https://retailwire.com/feed/",
+        "type": "retail"
+    },
+    {
+        "name": "Chain Store Age",
+        "url": "https://chainstoreage.com/rss.xml",
+        "type": "retail"
+    },
 
-        # Finance and market news
-        {
-            "name": "Yahoo Finance",
-            "url": "https://finance.yahoo.com/news/rssindex",
-            "type": "finance"
-        },
-        {
-            "name": "MarketWatch",
-            "url": "http://feeds.marketwatch.com/marketwatch/topstories/",
-            "type": "finance"
-        },
-        {
-            "name": "Seeking Alpha",
-            "url": "https://seekingalpha.com/feed.xml",
-            "type": "finance"
-        },
+    # IoT / wireless / edge technology
+    {
+        "name": "IoT Business News",
+        "url": "https://iotbusinessnews.com/feed/",
+        "type": "iot"
+    },
+    {
+        "name": "IoT World Today",
+        "url": "https://www.iotworldtoday.com/rss.xml",
+        "type": "iot"
+    },
+    {
+        "name": "Google News IoT",
+        "url": "https://news.google.com/rss/search?q=IoT%20OR%20Internet%20of%20Things&hl=en-US&gl=US&ceid=US:en",
+        "type": "iot"
+    },
+    {
+        "name": "Google News LPWAN",
+        "url": "https://news.google.com/rss/search?q=LPWAN%20OR%20low%20power%20wireless&hl=en-US&gl=US&ceid=US:en",
+        "type": "wireless"
+    },
 
-        # World news
-        {
-            "name": "Associated Press",
-            "url": "https://apnews.com/hub/ap-top-news?output=rss",
-            "type": "news"
-        },
-        {
-            "name": "BBC World",
-            "url": "http://feeds.bbci.co.uk/news/world/rss.xml",
-            "type": "news"
-        },
+    # Healthcare / logistics applications
+    {
+        "name": "Google News Healthcare IoT",
+        "url": "https://news.google.com/rss/search?q=healthcare%20IoT%20OR%20hospital%20inventory%20automation&hl=en-US&gl=US&ceid=US:en",
+        "type": "healthcare"
+    },
+    {
+        "name": "Google News Logistics Automation",
+        "url": "https://news.google.com/rss/search?q=logistics%20automation%20OR%20warehouse%20automation&hl=en-US&gl=US&ceid=US:en",
+        "type": "logistics"
+    },
+    {
+        "name": "Google News Cold Chain Monitoring",
+        "url": "https://news.google.com/rss/search?q=cold%20chain%20monitoring%20OR%20cold%20chain%20IoT&hl=en-US&gl=US&ceid=US:en",
+        "type": "logistics"
+    },
 
-        # Community and discussion sources
-        {
-            "name": "Hacker News",
-            "url": "https://news.ycombinator.com/rss",
-            "type": "community"
-        },
-        {
-            "name": "Reddit Artificial",
-            "url": "https://www.reddit.com/r/artificial/.rss",
-            "type": "community"
-        },
-        {
-            "name": "Reddit ChatGPT",
-            "url": "https://www.reddit.com/r/ChatGPT/.rss",
-            "type": "community"
-        },
-        {
-            "name": "Reddit Machine Learning",
-            "url": "https://www.reddit.com/r/MachineLearning/.rss",
-            "type": "community"
-        },
-        {
-            "name": "Reddit LocalLLaMA",
-            "url": "https://www.reddit.com/r/LocalLLaMA/.rss",
-            "type": "community"
-        },
-        {
-            "name": "Reddit Apple",
-            "url": "https://www.reddit.com/r/apple/.rss",
-            "type": "community"
-        },
-        {
-            "name": "Reddit Technology",
-            "url": "https://www.reddit.com/r/technology/.rss",
-            "type": "community"
-        },
-        {
-            "name": "Reddit Stocks",
-            "url": "https://www.reddit.com/r/stocks/.rss",
-            "type": "community"
-        },
-
-        {
-            "name": "Google News Taiwan",
-            "url": "https://news.google.com/rss?hl=zh-TW&gl=TW&ceid=TW:zh-Hant",
-            "type": "news"
-        },
-        {
-            "name": "Google News Tech TW",
-            "url": "https://news.google.com/rss/search?q=科技&hl=zh-TW&gl=TW&ceid=TW:zh-Hant",
-            "type": "news"
-        },
-        {
-            "name": "Google News Business TW",
-            "url": "https://news.google.com/rss/search?q=財經&hl=zh-TW&gl=TW&ceid=TW:zh-Hant",
-            "type": "finance"
-        },
-        {
-            "name": "Google News ESL",
-            "url": "https://news.google.com/rss/search?q=electronic%20shelf%20label&hl=en-US&gl=US&ceid=US:en",
-            "type": "industry"
-        },
-        {
-            "name": "Google News Smart Retail",
-            "url": "https://news.google.com/rss/search?q=smart%20retail%20OR%20retail%20automation&hl=en-US&gl=US&ceid=US:en",
-            "type": "industry"
-        },
-        {
-            "name": "Google News M2COMM Competitors",
-            "url": "https://news.google.com/rss/search?q=Hanshow%20OR%20VusionGroup%20OR%20Pricer%20OR%20SOLUM%20OR%20Zkong&hl=en-US&gl=US&ceid=US:en",
-            "type": "competitor"
-        },
-        {
-            "name": "Retail Dive",
-            "url": "https://www.retaildive.com/feeds/news/",
-            "type": "industry"
-        },
-        {
-            "name": "Retail Technology Innovation Hub",
-            "url": "https://retailtechinnovationhub.com/home?format=rss",
-            "type": "industry"
-        },
-        {
-            "name": "IoT Business News",
-            "url": "https://iotbusinessnews.com/feed/",
-            "type": "iot"
-        },
-        {
-            "name": "IoT World Today",
-            "url": "https://www.iotworldtoday.com/rss.xml",
-            "type": "iot"
-        },
-        {
-            "name": "E Ink News",
-            "url": "https://www.eink.com/news.xml",
-            "type": "supplier"
-        }
-        ]
+    # Display / e-paper supply chain
+    {
+        "name": "E Ink News",
+        "url": "https://www.eink.com/news.xml",
+        "type": "supplier"
+    },
+    {
+        "name": "Google News E Paper",
+        "url": "https://news.google.com/rss/search?q=e-paper%20display%20OR%20electronic%20paper%20display&hl=en-US&gl=US&ceid=US:en",
+        "type": "supplier"
+    }
+]
 
 
 
